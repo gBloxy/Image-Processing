@@ -15,3 +15,5 @@ RGBA           = 12
 CARTOON        = 13
 EMBOSS_WHITE   = 14
 BUMP           = 15
+MOTION_BLUR    = 16
+RADIAL_BLUR    = 17

@@ -2,13 +2,11 @@
 import pygame
 import moderngl
 from array import array
-from os.path import dirname
 from os import listdir
 
 from processing.const import *
+from processing.core import fromFile, equalize, uniformError, path
 
-
-path = dirname(__file__) + '\\'
 
 ctx = moderngl.create_standalone_context()
 
@@ -20,18 +18,7 @@ vbo = ctx.buffer(data=array('f', [
     ]))
 
 
-def uniformError(name, error):
-    print(f'The following error occured during setting the {name} uniform to a shader program :')
-    print(error)
-
-
-def fromFile(path: str):
-    with open(path) as file:
-        code = file.read()
-    return code
-
-
-def load(shader):
+def load(shader) -> tuple:
     files = listdir(path + 'shaders')
     if f'{shader}.frag' in files:
         frag = fromFile(path + 'shaders\\' + f'{shader}.frag')
@@ -42,11 +29,6 @@ def load(shader):
     else:
         vert = default_codes[1]
     return (frag, vert)
-
-
-def equalize(d, keys, src):
-    for k in keys:
-        d[k] = d[src]
 
 
 default_codes = load('default')
@@ -63,7 +45,9 @@ codes = {
     RGBA           : load('rgba'),
     CARTOON        : load('cartoon'),
     EMBOSS_WHITE   : load('emboss-white'),
-    BUMP           : load('bump')
+    BUMP           : load('bump'),
+    MOTION_BLUR    : load('motion-blur'),
+    RADIAL_BLUR    : load('radial-blur')
 }
 
 equalize(codes, [SHARPEN, EMBOSS, EDGE, LAPLACE], CONVOLUTION)
@@ -77,33 +61,63 @@ kernels = {
 
 
 class Texture():
+    """
+    Texture class for representing images and handle an OpenGL Texture object.
+    """
     def __init__(self, source):
         if type(source) == moderngl.Texture:
             self.tex = source
         
         elif type(source) == pygame.Surface:
+            source = pygame.transform.flip(source, False, True)
             data = pygame.image.tobytes(source, 'RGBA')
             self.tex = ctx.texture(source.get_size(), components=4, data=data)
             self.tex.filter = (moderngl.NEAREST, moderngl.NEAREST)
     
     @property
-    def size(self):
+    def size(self) -> tuple:
         return self.tex.size
     
-    def release(self):
+    def release(self) -> None:
+        """
+        Release the OpenGL texture.
+        
+        Warning : This will make this Texture unusable.
+        """
         self.tex.release()
     
-    def toTexture(self):
-        return self.tex
-    
-    def toSurface(self):
+    def toSurface(self) -> pygame.Surface:
+        """
+        Convert the Texture to a pygame Surface.
+        """
         buffer = self.tex.read()
         surf = pygame.image.frombuffer(buffer, self.tex.size, 'RGBA')
-        surf = pygame.transform.flip(surf, False, True)
+        # surf = pygame.transform.flip(surf, False, True)
         return surf
+    
+    def write(self, data) -> None:
+        ...
+    
+    def save(self, file_path: str) -> None:
+        """
+        Save this Texture to a file.
+        
+        file_path (str) : the file path to save the Texture. It must indicate a file with the desired name and extension.
+        """
+        pygame.image.save()
+        surf = self.toSurface()
+        pygame.image.save(surf, file_path)
+
 
 
 class Shader():
+    """
+    Shader class responsible for procesing images with a GLSL shader.
+    
+    type_ : The shader type to create a pre-build shader.
+    fragment and vertex (str): GLSL code to create a custom shader without pre-builded type.
+    If only one code is passed, the other will be set to the default code.
+    """
     def __init__(self, type_: int=None, fragment: str=None, vertex: str=None):
         if type(type_) == int:
             self.frag, self.vert = codes[type_]
@@ -150,7 +164,10 @@ class Shader():
         except Exception as error:
             return error
     
-    def setUniforms(self, **uniforms):
+    def setUniforms(self, **uniforms) -> None:
+        """
+        Update the shader uniforms.
+        """
         for name in uniforms:
             u = uniforms[name]
             if type(u) != pygame.Surface:
@@ -163,11 +180,16 @@ class Shader():
                 if error:
                     uniformError(name, error)
     
-    def run(self, source):
+    def run(self, source) -> Texture:
+        """
+        Run the shader on a texture and return the processed texture.
+        
+        source : the texture to process with the shader. It can be a Texture or anything that represent an image.
+        """
         if type(source) != Texture:
             source = Texture(source)
         
-        src = source.toTexture()
+        src = source.tex
         src.use(0)
         
         try:
@@ -175,13 +197,18 @@ class Shader():
         except:
             pass
         
-        texture = ctx.texture(src.size, 4)
+        texture = ctx.texture(src.size, components=4)
+        texture.filter = (moderngl.NEAREST, moderngl.NEAREST)
         
         fbo = ctx.framebuffer(texture)
         fbo.use()
         
         self.vao.render(mode=moderngl.TRIANGLE_STRIP)
         
-        src.release()
+        fbo.release()
         
         return Texture(texture)
+
+
+class Process():
+    ...
