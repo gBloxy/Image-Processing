@@ -1,6 +1,7 @@
 
 import pygame
 import moderngl
+import numpy as np
 from array import array
 from os import listdir
 
@@ -47,7 +48,13 @@ codes = {
     EMBOSS_WHITE   : load('emboss-white'),
     BUMP           : load('bump'),
     MOTION_BLUR    : load('motion-blur'),
-    RADIAL_BLUR    : load('radial-blur')
+    RADIAL_BLUR    : load('radial-blur'),
+    VIGNETTE       : load('vignette'),
+    SEPIA          : load('sepia'),
+    INVERSION      : load('inversion'),
+    FISH_EYE       : load('fish-eye'),
+    BARREL         : load('barrel'),
+    ANTI_FISH_EYE  : load('anti-fish-eye')
 }
 
 equalize(codes, [SHARPEN, EMBOSS, EDGE, LAPLACE], CONVOLUTION)
@@ -67,15 +74,22 @@ class Texture():
     def __init__(self, source):
         if type(source) == moderngl.Texture:
             self.tex = source
+            self.flip(False, True)
         
         elif type(source) == pygame.Surface:
             source = pygame.transform.flip(source, False, True)
             data = pygame.image.tobytes(source, 'RGBA')
             self.tex = ctx.texture(source.get_size(), components=4, data=data)
-            self.tex.filter = (moderngl.NEAREST, moderngl.NEAREST)
+        
+        elif type(source) == np.ndarray:
+            source = np.flipud(source)
+            self.tex = ctx.texture((source.shape[1], source.shape[0]), components=source.shape[2], data=array)
+        
+        else:
+            raise TypeError('Invalid source type : '+str(type(source)))
     
     @property
-    def size(self) -> tuple:
+    def size(self):
         return self.tex.size
     
     def release(self) -> None:
@@ -91,12 +105,32 @@ class Texture():
         Convert the Texture to a pygame Surface.
         """
         buffer = self.tex.read()
-        surf = pygame.image.frombuffer(buffer, self.tex.size, 'RGBA')
-        # surf = pygame.transform.flip(surf, False, True)
+        surf = pygame.image.frombytes(buffer, self.tex.size, 'RGBA', flipped=True)
         return surf
     
+    def toArray(self) -> np.ndarray:
+        """
+        Convert the Texture to a numpy array.
+        """
+        buffer = self.tex.read()
+        width, height = self.tex.size
+        array = np.frombuffer(buffer, dtype=np.uint8)
+        array = array.reshape((height, width, self.tex.components))
+        return array
+    
+    def flip(self, x: bool, y: bool):
+        array = self.toArray()
+        if x:
+            array = np.fliplr(array)
+        if y:
+            array = np.flipud(array)
+        self.write(array.copy())
+    
     def write(self, data) -> None:
-        ...
+        """
+        Write new data into the moderngl Texture.
+        """
+        self.tex.write(data)
     
     def save(self, file_path: str) -> None:
         """
@@ -104,10 +138,8 @@ class Texture():
         
         file_path (str) : the file path to save the Texture. It must indicate a file with the desired name and extension.
         """
-        pygame.image.save()
         surf = self.toSurface()
         pygame.image.save(surf, file_path)
-
 
 
 class Shader():
@@ -198,7 +230,6 @@ class Shader():
             pass
         
         texture = ctx.texture(src.size, components=4)
-        texture.filter = (moderngl.NEAREST, moderngl.NEAREST)
         
         fbo = ctx.framebuffer(texture)
         fbo.use()
@@ -211,4 +242,38 @@ class Shader():
 
 
 class Process():
-    ...
+    def __init__(self, *stages):
+        self.stages = []
+        for s in stages:
+            shader = uniforms = None
+            
+            if type(s) == int:
+                shader = Shader(s)
+            elif type(s) == str:
+                shader = Shader(fragment=s)
+            elif type(s) in (list, tuple):
+                if len(s) == 1:
+                    shader = Shader(s[0])
+                elif len(s) == 2:
+                    shader = Shader(fragment=s[0], vertex=s[1])
+                elif len(s) >= 3:
+                    shader = Shader(fragment=s[0], vertex=s[1])
+                    uniforms = s[2]
+            
+            if shader is not None:
+                self.stages.append([shader, uniforms])
+            else:
+                print(f'This shader process input is not valid : {s}')
+    
+    def run(self, source) -> Texture:
+        if type(source) != Texture:
+            tex = Texture(source)
+        else:
+            tex = source
+        
+        for stage in self.stages:
+            if stage[1] is not None:
+                stage[0].setUniforms(**stage[1])
+            tex = stage[0].run(tex)
+        
+        return tex
