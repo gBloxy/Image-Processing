@@ -119,6 +119,9 @@ class Texture():
         return array
     
     def flip(self, x: bool, y: bool):
+        """
+        Flip this Texture on x or y axis.
+        """
         array = self.toArray()
         if x:
             array = np.fliplr(array)
@@ -242,38 +245,60 @@ class Shader():
 
 
 class Process():
+    """
+    A Process can automatically run multiple shaders on the same texture in a predifined order.
+    """
     def __init__(self, *stages):
         self.stages = []
         for s in stages:
-            shader = uniforms = None
-            
-            if type(s) == int:
-                shader = Shader(s)
-            elif type(s) == str:
-                shader = Shader(fragment=s)
-            elif type(s) in (list, tuple):
-                if len(s) == 1:
-                    shader = Shader(s[0])
-                elif len(s) == 2:
-                    shader = Shader(fragment=s[0], vertex=s[1])
-                elif len(s) >= 3:
-                    shader = Shader(fragment=s[0], vertex=s[1])
-                    uniforms = s[2]
-            
-            if shader is not None:
-                self.stages.append([shader, uniforms])
-            else:
-                print(f'This shader process input is not valid : {s}')
+            self.stages.append(self._add(s))
+    
+    def __getitem__(self, key):
+        return self.stages[key]
+    
+    def _add(self, step):
+        if type(step) == int:
+            return Shader(step)
+        elif type(step) == Shader:
+            return step
+        else:
+            raise TypeError(f'This obj : {step} is not a valid step')
+    
+    def remove(self, index: int) -> None:
+        """
+        Remove a shader step from the process.
+        
+        index : the step index in the process order.
+        """
+        self.stages.pop(index)
+    
+    def add(self, step) -> None:
+        """
+        Add a shader step to the process.
+        
+        step : either a pre-build filter constant or a custom shader.
+        """
+        self.stages.append(self._add(step))
+    
+    def insert(self, step, index: int) -> None:
+        """
+        Insert a shader step in the process order at an index.
+        
+        step : either a pre-build filter constant or a custom shader.
+        index : the step index in the process order.
+        """
+        self.stages.insert(index, self._add(step))
     
     def run(self, source) -> Texture:
+        """
+        Execute the shaders process on a texture and return the processed texture.
+        """
         if type(source) != Texture:
             tex = Texture(source)
         else:
             tex = source
         
-        for stage in self.stages:
-            if stage[1] is not None:
-                stage[0].setUniforms(**stage[1])
-            tex = stage[0].run(tex)
+        for shader in self.stages:
+            tex = shader.run(tex)
         
         return tex
