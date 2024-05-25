@@ -2,11 +2,12 @@
 import pygame
 import moderngl
 import numpy as np
+from PIL import Image
 from array import array
 from os import listdir
 
 from processing.const import *
-from processing.core import fromFile, equalize, uniformError, path
+from processing.core import readFile, uniformError, path
 
 
 ctx = moderngl.create_standalone_context()
@@ -22,11 +23,11 @@ vbo = ctx.buffer(data=array('f', [
 def load(shader) -> tuple:
     files = listdir(path + 'shaders')
     if f'{shader}.frag' in files:
-        frag = fromFile(path + 'shaders\\' + f'{shader}.frag')
+        frag = readFile(path + 'shaders\\' + f'{shader}.frag')
     else:
         frag = default_codes[0]
     if f'{shader}.vert' in files:
-        vert = fromFile(path + 'shaders\\' + f'{shader}.vert')
+        vert = readFile(path + 'shaders\\' + f'{shader}.vert')
     else:
         vert = default_codes[1]
     return (frag, vert)
@@ -57,7 +58,8 @@ codes = {
     ANTI_FISH_EYE  : load('anti-fish-eye')
 }
 
-equalize(codes, [SHARPEN, EMBOSS, EDGE, LAPLACE], CONVOLUTION)
+for k in [SHARPEN, EMBOSS, EDGE, LAPLACE]:
+    codes[k] = codes[CONVOLUTION]
 
 kernels = {
     SHARPEN  : ( 0, -1,  0, -1,  5, -1,  0, -1,  0),
@@ -76,6 +78,10 @@ class Texture():
             self.tex = source
             self.flip(False, True)
         
+        elif isinstance(source, Image.Image):
+            source = np.array(source)
+            self.tex = ctx.texture((source.shape[1], source.shape[0]), components=source.shape[2], data=source.copy())
+        
         elif type(source) == pygame.Surface:
             source = pygame.transform.flip(source, False, True)
             data = pygame.image.tobytes(source, 'RGBA')
@@ -83,7 +89,7 @@ class Texture():
         
         elif type(source) == np.ndarray:
             source = np.flipud(source)
-            self.tex = ctx.texture((source.shape[1], source.shape[0]), components=source.shape[2], data=array)
+            self.tex = ctx.texture((source.shape[1], source.shape[0]), components=source.shape[2], data=source.copy())
         
         else:
             raise TypeError('Invalid source type : '+str(type(source)))
@@ -117,6 +123,14 @@ class Texture():
         array = np.frombuffer(buffer, dtype=np.uint8)
         array = array.reshape((height, width, self.tex.components))
         return array
+    
+    def toImage(self) -> Image:
+        """
+        Convert the Texture to a PIL Image.
+        """
+        array = self.toArray()
+        image = Image.fromarray(array)
+        return image
     
     def flip(self, x: bool, y: bool):
         """

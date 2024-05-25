@@ -10,12 +10,7 @@ def uniformError(name, error):
     print(error)
 
 
-def equalize(d, keys, src):
-    for k in keys:
-        d[k] = d[src]
-
-
-def fromFile(path: str) -> str:
+def readFile(path: str) -> str:
     with open(path) as file:
-        code = file.read()
-    return code
+        data = file.read()
+    return data
