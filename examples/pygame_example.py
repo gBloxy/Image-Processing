@@ -8,7 +8,7 @@ import processing as ip
 
 
 # load the image with pygame
-image = pygame.image.load('image.png')
+image = pygame.image.load('..\\image.png')
 
 # create the pygame window
 win = pygame.display.set_mode((image.get_width() * 2 + 75, image.get_height() + 50))
