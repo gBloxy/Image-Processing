@@ -1,39 +1,40 @@
 
 import pygame
-from sys import exit
 pygame.init()
 
-import processing as p
+# import the image processing library
+import processing as ip
 
 
-win = pygame.display.set_mode((1200, 400))
-pygame.display.set_caption('Image Processing example with PyGame')
-
-clock = pygame.time.Clock()
-
-
+# load the image with pygame
 image = pygame.image.load('image.png')
 
-win.blit(image, (40, 25))
+# create the pygame window
+win = pygame.display.set_mode((image.get_width() * 2 + 75, image.get_height() + 50))
+pygame.display.set_caption('Image Processing example with PyGame')
+clock = pygame.time.Clock()
 
-shader = p.Shader(p.DEFAULT)
+# display the original image
+win.blit(image, (25, 25))
 
-out = shader.run(image)
+# create the shader with for example a colors inversion filter
+shader = ip.Shader(ip.INVERSION)
 
-surf = out.toSurface()
+# run the shader on the image and return the processed texture
+tex = shader.run(image)
 
-win.blit(surf, (1200-40-out.size[0], 25))
+# convert the processed texture into a pygame Surface
+surf = tex.toSurface()
+
+# display the processed image
+win.blit(surf, (tex.size[0] + 50, 25))
 
 
+# pygame gameloop
 while True:
-    if pygame.key.get_pressed()[pygame.K_ESCAPE]:
-        pygame.quit()
-        exit()
     for e in pygame.event.get():
         if e.type == pygame.QUIT:
             pygame.quit()
             exit()
-    
     clock.tick(10)
-    
     pygame.display.flip()
