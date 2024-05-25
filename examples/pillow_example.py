@@ -6,7 +6,7 @@ from processing import *
 
 
 # load the image with PIL
-image = Image.open('..\\image.png')
+image = Image.open('image.png')
 
 # create a new process of some pre-builds shaders
 process = Process(MOTION_BLUR, NOISE_REMOVER, BOX_BLUR, RGBA)
