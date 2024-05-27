@@ -2,7 +2,6 @@
 
 uniform sampler2D display;
 uniform vec2 res;
-uniform int kernel = 3;
 
 in vec2 uv;
 out vec4 frag_col;
