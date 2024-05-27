@@ -1,35 +1,40 @@
 # Image Processing
 
 This is a Python library designed for efficient and easy image processing with OpenGl shaders.  
-It work with almost any types of images, including PIL Image, pygame Surface, numpy ndarray, and moderngl texture.  
-The library provide a lot of processing filters and effects based on moderngl shaders. It allow you to create fully customized shaders programs writted in GLSL. With simplicity in mind, it lets you create processes that run multiple shaders on the same time.
+It works with almost any type of images, including PIL images, pygame surfaces, numpy ndarrays, and moderngl textures.  
+The library provides many processing filters and effects based on moderngl shaders. It allow you to create fully customized shaders programs written in GLSL. With simplicity in mind, it lets you create processes that run multiple shaders at the same time.
 
 ## Installation
 
-Download the source code and place the processing folder in your project directory.
+Download the source code and place the `processing` folder in your project directory.
+
+## Filters List
+
+Currently, the library has all of these pre-built shader effects :  
+RGBA, INVERSION BOX_BLUR, MOTION_BLUR, RADIAL_BLUR, CONVOLUTION, GRAYSCALE, SEPIA, CRT, NOISE_REMOVER, BLOOM, BARREL, FISH_EYE, ANTI_FISH_EYE, CARTOON, EDGE, LAPLACE, VIGNETTE, BUMP, SHARPEN, EMBOSS, EMBOSS_WHITE, and OUTLINES_WHITE.
 
 ## Usage
 
-- To process an image, you first need a shader object. You can create one with a pre-build filter or by providing the custom glsl source code :
+- To process an image, you first need a shader object. You can create one with a pre-built filter or by providing custom glsl source code :
 ```python
 import processing as ip
 
-# create a pre-build shader that invert image colors by providing a shader type (ip.[Constant]) :
+# Create a pre-built shader that inverts image colors by providing a shader type :
 shader = ip.Shader(ip.INVERSION)
 
-# create a custom shader with glsl source code :
-fragment_code = ip.readFile('path\\to\\fragment\\shader.glsl') # or any string that contain glsl code
+# Create a custom shader with glsl source code :
+fragment_code = ip.readFile('path\\to\\fragment\\shader.glsl') # or any string that contains glsl code
 shader = ip.Shader(fragment=fragment_code)
 ```
-You can also provide a vertex shader source code, but either fragment and vertex shader and not necessary : if not specified, the default program will be used.
-- You can modify the shader uniforms to custom it with the .setUniforms() method :
+You can also provide a vertex shader source code, but both fragment and vertex shader are not necessary : if not specified, the default program will be used.
+- You can modify the shader uniforms to customize it with the `.setUniforms()` method :
 ```python
 shader.setUniforms(direction=(150, 0), kernel=(2, 2, 2, 2, -17, 2, 2, 2, 2), etc...)
 ```
-Warning : not all shaders have modifiable uniforms. Check the shader uniforms first in the shader guide.
+<bold>Warning</bold> : Not all shaders have modifiable uniforms. Check the shader uniforms first in the shader guide.
 - Now you can run the shader on an image like that :
 ```python
-image = ... # any type of supported images (PIL images, pygame surfaces, numpy ndarray, moderngl textures)
+image = ... # any type of supported images (PIL images, pygame surfaces, numpy ndarrays, moderngl textures)
 processed_texture = shader.run(image) # return a ip.Texture object
 ```
 In this case the image is automatically converted into an ip.Texture when passed in the .run() method.
@@ -39,23 +44,23 @@ texture = ip.Texture(image_source)
 texture.size # access the texture dimensions (width, height)
 texture.tex # access the moderngl texture
 ```
-They are very usefull as they can be saved or converted into all the supported images format :
+Textures are very useful as they can be saved or converted into all the supported images formats :
 ```python
 pil_img = texture.toImage()
 surface = texture.toSurface()
 array = texture.toArray()
 texture.save('file\\path\\with\\image\\name.extension')
 ```
-- Finally, you can create process which can run multiple shaders at the same time :
+- Finally, you can create process that can run multiple shaders at the same time :
 ```python
 process = ip.Process(ip.MOTION_BLUR, ip.NOISE_REMOVER, ip.BOX_BLUR, ip.RGBA, etc...) # created with filters
 # or create your own shaders first :
 shader1 = ip.Shader(fragment='fragment code')
 shader2 = ip.Shader(ip.GRAYSCALE)
 process = ip.Process(shader1, shader2)
-# you can also create one with differents source :
+# you can also create one with different sources :
 process = Process(ip.MOTION_BLUR, shader1)
-# run the process
+# run the process :
 output_tex = process.run(image_source)
 ```
 You can modify a process with :
@@ -63,12 +68,12 @@ You can modify a process with :
 process.remove(step_index) # remove a shader step
 process.add(shader or const) # add a new shader step at the end of the process
 process.insert(shader or const, index) # insert a new step at an index, like a list
-process[index] # access a shader step with it index
+process[index] # access a shader step with its index
 ```
 
 ## Requirements
 
-To run, the library require Pillow, numpy, moderngl, and pygame. Install all of these by running this line on a command shell :
+To run, the library require Pillow, numpy, moderngl, and pygame. Install all of these by running this line in a command shell :
 ```bash
 pip install -r requirements.txt
 ```
@@ -77,6 +82,10 @@ pip install -r requirements.txt
 
 If you encounter any issues, have suggestions, or need support, please don't hesitate to reach out by creating an issue in the repository.  
 All feedbacks are welcome.
+
+## Credits
+
+For the momment, most of the pre-built filters are modified versions of shaders found on the internet from websites like ShaderToy. I plan to rewrite all of these one day.
 
 ## License
 
