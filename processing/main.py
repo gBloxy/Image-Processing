@@ -23,11 +23,11 @@ vbo = ctx.buffer(data=array('f', [
 def load(shader) -> tuple:
     files = listdir(path + 'shaders')
     if f'{shader}.frag' in files:
-        frag = readFile(path + 'shaders\\' + f'{shader}.frag')
+        frag = readFile(path + 'shaders/' + f'{shader}.frag')
     else:
         frag = default_codes[0]
     if f'{shader}.vert' in files:
-        vert = readFile(path + 'shaders\\' + f'{shader}.vert')
+        vert = readFile(path + 'shaders/' + f'{shader}.vert')
     else:
         vert = default_codes[1]
     return (frag, vert)
@@ -135,7 +135,7 @@ class Texture():
         image = Image.fromarray(array)
         return image
     
-    def flip(self, x: bool, y: bool):
+    def flip(self, x: bool, y: bool) -> None:
         """
         Flip this Texture on x or y axis.
         """
