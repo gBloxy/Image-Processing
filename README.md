@@ -23,7 +23,7 @@ import processing as ip
 shader = ip.Shader(ip.INVERSION)
 
 # Create a custom shader with glsl source code :
-fragment_code = ip.readFile('path\\to\\fragment\\shader.glsl') # or any string that contains glsl code
+fragment_code = ip.readFile('path/to/fragment/shader.glsl') # or any string that contains glsl code
 shader = ip.Shader(fragment=fragment_code)
 ```
 You can also provide a vertex shader source code, but both fragment and vertex shader are not necessary : if not specified, the default program will be used.
@@ -49,7 +49,7 @@ Textures are very useful as they can be saved or converted into all the supporte
 pil_img = texture.toImage()
 surface = texture.toSurface()
 array = texture.toArray()
-texture.save('file\\path\\with\\image\\name.extension')
+texture.save('file/path/with/image/name.extension')
 ```
 - Finally, you can create process that can run multiple shaders at the same time :
 ```python
