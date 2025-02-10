@@ -22,7 +22,7 @@ SEPIA, CRT, NOISE_REMOVER, BLOOM, BARREL, FISH_EYE, ANTI_FISH_EYE, CARTOON,
 EDGE, LAPLACE, VIGNETTE, BUMP, SHARPEN, EMBOSS, EMBOSS_WHITE, and
 OUTLINES_WHITE.
 
-You can see the [shader effects here](./examples)
+You can see the [shader effects here](./examples/README.md)
 
 ## Usage
 
@@ -130,4 +130,3 @@ these one day.
 
 The library is licensed under the MIT license - see the `LICENSE` file for
 details.
-
