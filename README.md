@@ -11,16 +11,17 @@ shaders at the same time.
 
 ## Installation
 
-Download the source code and place the `processing` folder in your project
-directory.
+To install image processing use `pip install .` or use `pip install -e .` for
+development mode (no need to reinstall it with each modification of
+`image-processing`)
 
 ## Filters List
 
 Currently, the library has all of these pre-built shader effects :\
-RGBA, INVERSION BOX_BLUR, MOTION_BLUR, RADIAL_BLUR, CONVOLUTION, GRAYSCALE,
-SEPIA, CRT, NOISE_REMOVER, BLOOM, BARREL, FISH_EYE, ANTI_FISH_EYE, CARTOON,
-EDGE, LAPLACE, VIGNETTE, BUMP, SHARPEN, EMBOSS, EMBOSS_WHITE, and
-OUTLINES_WHITE.
+CRT , GAUSSIAN_BLUR , BLOOM , GRAYSCALE , BOX_BLUR , CONVOLUTION , NOISE_REMOVER
+, RGBA , CARTOON , EMBOSS_WHITE , BUMP , MOTION_BLUR , RADIAL_BLUR , VIGNETTE ,
+SEPIA , INVERSION , FISH_EYE , BARREL , ANTI_FISH_EYE , OUTLINES_WHITE , COMIC ,
+SIMPLE_CARTOON , MONOCHROME_PALETTE , CGA_PALETTE , EGA_PALETTE , VGA_PALETTE
 
 You can see the [shader effects here](./examples/README.md)
 

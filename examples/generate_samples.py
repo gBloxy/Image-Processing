@@ -1,33 +1,24 @@
 from PIL import Image
 from processing import *
 
+from processing.main import codes
+
 REDUCE_FACTOR = 2
 
+shaders = {}
+
+
 # TODO: Get shaders from image-processing library
-shaders = {
-    CRT,
-    GAUSSIAN_BLUR,
-    BLOOM,
-    GRAYSCALE,
-    BOX_BLUR,
-    CONVOLUTION,
-    NOISE_REMOVER,
-    RGBA,
-    CARTOON,
-    EMBOSS_WHITE,
-    BUMP,
-    MOTION_BLUR,
-    RADIAL_BLUR,
-    VIGNETTE,
-    SEPIA,
-    INVERSION,
-    FISH_EYE,
-    BARREL,
-    ANTI_FISH_EYE,
-    OUTLINES_WHITE,
-    COMIC,
-    SIMPLE_CARTOON,
-}
+# Get all constants
+def get_constants():
+    global shaders
+
+    for code in codes:
+        constant_name = [name for name, value in globals().items() if value == code][0]
+        shaders[code] = constant_name
+
+    shaders = sorted(shaders.items(), key=lambda x: x[0])
+
 
 # load the image with PIL
 image = Image.open("image.png")
@@ -35,8 +26,8 @@ image = image.resize(
     (int(image.size[0] / REDUCE_FACTOR), int(image.size[1] / REDUCE_FACTOR)),
     Image.Resampling.LANCZOS,
 )
-
-with open("TEST-README.md", "w") as readme_file:
+get_constants()
+with open("README.md", "w") as readme_file:
     # README header
     readme_file.write("# Shader results\n\n")
     readme_file.write("Here the samples results with applied shader effects.\n\n")
@@ -44,15 +35,13 @@ with open("TEST-README.md", "w") as readme_file:
     readme_file.write("| ------------- | ----- |\n")
 
     # Generate the samples
-    for constant in shaders:
-        constant_name = [
-            name for name, value in globals().items() if value == constant
-        ][0]
+    for idx in range(1, len(shaders)):
+        constant_name = shaders[idx][1]
 
         try:
             print(f"Processing {constant_name}")
             # Apply ther shader
-            process = Process(constant)
+            process = Process(idx)
             tex = process.run(image)
             pil_img = tex.toImage()
 
@@ -62,6 +51,7 @@ with open("TEST-README.md", "w") as readme_file:
 
             # Add sample to the README
             readme_file.write(f"| {constant_name} | ![Image]({filename}) |\n")
-        except Exception:
+        except Exception as e:
+            print(e)
             print(f"Error processing {constant_name}")
             readme_file.write(f"| {constant_name} | Erreur | \n")

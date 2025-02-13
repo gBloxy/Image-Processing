@@ -10,6 +10,10 @@ Here the samples results with applied shader effects.
 | GRAYSCALE | ![Image](image_GRAYSCALE_shader.png) |
 | BOX_BLUR | ![Image](image_BOX_BLUR_shader.png) |
 | CONVOLUTION | ![Image](image_CONVOLUTION_shader.png) |
+| SHARPEN | ![Image](image_SHARPEN_shader.png) |
+| EMBOSS | ![Image](image_EMBOSS_shader.png) |
+| EDGE | ![Image](image_EDGE_shader.png) |
+| LAPLACE | ![Image](image_LAPLACE_shader.png) |
 | NOISE_REMOVER | ![Image](image_NOISE_REMOVER_shader.png) |
 | RGBA | ![Image](image_RGBA_shader.png) |
 | CARTOON | ![Image](image_CARTOON_shader.png) |
@@ -26,3 +30,7 @@ Here the samples results with applied shader effects.
 | OUTLINES_WHITE | ![Image](image_OUTLINES_WHITE_shader.png) |
 | COMIC | ![Image](image_COMIC_shader.png) |
 | SIMPLE_CARTOON | ![Image](image_SIMPLE_CARTOON_shader.png) |
+| MONOCHROME_PALETTE | ![Image](image_MONOCHROME_PALETTE_shader.png) |
+| CGA_PALETTE | ![Image](image_CGA_PALETTE_shader.png) |
+| EGA_PALETTE | ![Image](image_EGA_PALETTE_shader.png) |
+| VGA_PALETTE | ![Image](image_VGA_PALETTE_shader.png) |
