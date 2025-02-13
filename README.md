@@ -127,6 +127,10 @@ For the momment, most of the pre-built filters are modified versions of shaders
 found on the internet from websites like ShaderToy. I plan to rewrite all of
 these one day.
 
+## Projects tha use image-processing
+
+- [glsl-shader-effects](https://github.com/badele/awesome-scripts/blob/main/images/glsl-shader-effects/README.md)
+
 ## License
 
 The library is licensed under the MIT license - see the `LICENSE` file for
